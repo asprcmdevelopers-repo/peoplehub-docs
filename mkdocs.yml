@@ -1,0 +1,64 @@
+site_name: PeopleHub Tutorials
+site_description: How to use PeopleHub, the central employee master service
+site_url: https://asprcmdevelopers-repo.github.io/peoplehub-docs/
+theme:
+  name: material
+  font: false
+  features:
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+plugins:
+  - search
+markdown_extensions:
+  - tables
+  - attr_list
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - mdx_truly_sane_lists:
+      nested_indent: 2
+      truly_sane: false
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+validation:
+  links:
+    anchors: warn
+nav:
+  - Home: index.md
+  - Getting started:
+      - Connect an app in 5 steps: onboarding.md
+      - What ASP CORE must send: it-contract.md
+  - Imports:
+      - The push and Excel upload: help/import-faq.md
+      - Import runs: help/import-runs-faq.md
+      - Mappings, settings and alerts: help/mappings-settings-and-alerts-faq.md
+  - People:
+      - Employees and rehire review: help/admin-employees-and-rehire-faq.md
+      - Manual people: help/manual-people-faq.md
+  - Apps:
+      - Reading employees and changes: help/employees-and-changes-faq.md
+      - Client apps and API keys: help/clients-and-api-keys-faq.md
+      - Webhooks: help/webhooks-faq.md
+      - Client library: help/client-library-faq.md
+  - Operations:
+      - Dashboard and audit log: help/dashboard-and-audit-faq.md
