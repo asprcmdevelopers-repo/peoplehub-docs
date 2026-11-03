@@ -13,11 +13,12 @@ What happens *after* a run (reading a run's page, approve, replay, raw payload) 
 1. [The basics](#1-the-basics)
 2. [Every push is the whole company](#2-every-push-is-the-whole-company)
 3. [The push: `POST /import/employees`](#3-the-push-post-importemployees)
-4. [The Excel upload: `POST /import/excel`](#4-the-excel-upload-post-importexcel)
-5. [The answers](#5-the-answers)
-6. [Everyday situations](#6-everyday-situations)
-7. [Good to know](#7-good-to-know)
-8. [Quick reference](#8-quick-reference)
+4. [Field list and permissions](#4-field-list-and-permissions)
+5. [The Excel upload: `POST /import/excel`](#5-the-excel-upload-post-importexcel)
+6. [The answers](#6-the-answers)
+7. [Everyday situations](#7-everyday-situations)
+8. [Good to know](#8-good-to-know)
+9. [Quick reference](#9-quick-reference)
 
 ---
 
@@ -96,27 +97,24 @@ Then **nothing** is applied, the run becomes **Rejected**, the answer is `422`, 
 
 ## 3. The push: `POST /import/employees`
 
+**How does ASP CORE call it?**
+`POST /api/v1/import/employees` on the address we give them, with the headers `Content-Type: application/json` and `X-Api-Key: <their key>`. We suggest nightly at 01:00 IST.
+
 **What does ASP CORE send?**
 A JSON array, one object per employee:
 
 ```json
 [
-  { "employeeCode": "ASP0001", "name": "Priya Raman", "email": "priya.raman@example.com",
+  { "employeeCode": "ASP0001", "hrmsId": "1042871", "name": "Priya Raman", "email": "priya.raman@example.com",
     "department": "AR Follow-up", "designation": "Team Lead", "managerEmployeeCode": "ASP0100",
-    "location": "Chennai", "shift": "General", "dateOfJoining": "2021-04-12", "active": true, "status": "Confirmed",
+    "location": "Chennai", "shiftName": "General", "dateOfJoining": "2021-04-12", "active": true, "status": "Confirmed",
     "lastModified": "2026-10-31T18:20:00+05:30" },
-  { "employeeCode": "ASP0045", "name": "Arun Kumar", "active": false, "status": "Resigned", "leavingDate": "2026-10-30" }
+  { "employeeCode": "ASP0045", "hrmsId": "1042872", "name": "Arun Kumar", "active": false, "status": "Resigned", "leavingDate": "2026-10-30" }
 ]
 ```
 
-Only `employeeCode` and `name` are required (more in **strict mode**, see *Which columns does strict mode require?* below). The full field list and what ASP CORE should do with each
-answer are in the [IT contract](../it-contract.md), the document given to the ASP CORE team.
-
-**Which columns does strict mode require?**
-`employeeCode`, `hrmsId`, `name`, `email`, `department`, `designation`, `dateOfJoining`, `shift`, one of `status`/`active`, and one of
-`managerEmployeeCode`/`managerEmail`. Names are checked after the field map, so `shiftName` counts as `shift`. An Excel sheet needs the
-same columns except `hrmsId`. If a required column is missing or empty for everyone, the whole import stops: `400`, run **Failed**,
-nothing applied. An ASP CORE push also raises a Critical alert.
+The full field list, the required columns and the permission groups are in [section 4](#4-field-list-and-permissions). The setup steps for the ASP CORE team are in the
+[IT contract](../it-contract.md).
 
 **What if ASP CORE wraps the list, like `{ "employees": [ … ] }`?**
 Fine — set **Field map → Array path** to `$.employees`. The default `$` means a bare array.
@@ -143,7 +141,127 @@ or ranges like `10.20.0.0/24`), calls from anywhere else get `403` even with the
 
 ---
 
-## 4. The Excel upload: `POST /import/excel`
+## 4. Field list and permissions
+
+**The push** decides what arrives in PeopleHub, and permissions play no part in it. **Permissions** only control what each app can read afterwards.
+
+### What ASP CORE sends
+
+**Main fields**
+
+| ASP CORE field | Hub field | In IT's mail? | Column required? | Can one person's value be blank? |
+|---|---|---|---|---|
+| `employeeCode` | `employeeCode` | Yes | Yes | No |
+| `hrmsId` | `hrmsId` | Yes | Yes | No |
+| `name` | `name` | Yes | Yes | No |
+| `email` | `email` | Yes | Yes | No |
+| `department` | `department` | Yes | Yes | No |
+| `designation` | `designation` | Yes | Yes | No |
+| `dateOfJoining` | `dateOfJoining` | No, IT must add it | Yes | No |
+| `status` | `status` and `statusRaw` | Yes | At least one of the two | No |
+| `active` | `active` | Yes | At least one of the two | No |
+| `shiftName` | `shift` | Yes | Yes | Yes |
+| `managerEmployeeCode` | `managerEmployeeCode` | No, IT is asked to add it | At least one of the two | Yes |
+| `managerEmail` | `managerEmail` | Yes | At least one of the two | Yes |
+| `location` | `location` | No | No | Yes |
+| `leavingDate` | `leavingDate` | Yes | No | Yes |
+| `lastModified` | `lastModified` | No | No | Yes |
+
+`shiftName` is the only field whose name changes. `status` is stored twice: `status` holds the standard word, such as `NoticePeriod`, and `statusRaw` holds greytHR's exact words, such as `Notice Period`.
+
+**Extra data**
+
+None of these are required, and they are stored under the same name ASP CORE sends:
+
+| ASP CORE field | Hub location |
+|---|---|
+| `managerName` | `extra.managerName` |
+| `grade` | `extra.grade` |
+| `gender` | `extra.gender` |
+| `dateOfBirth` | `extra.dateOfBirth` |
+| `phone` | `extra.phone` |
+| Any other field not listed here | `extra.<same name>` |
+
+**Not stored on the employee**
+
+If ASP CORE sends any of these, they are dropped from the employee record and a warning is logged: salary, CTC, gross pay, net pay, PAN, Aadhaar, SSN, passport, bank account number, IFSC and UAN.
+
+The admin-only raw copy of the push still contains them for 30 days.
+
+### How the check works
+
+The required column and blank value checks run when strict mode is on. Until then, only `employeeCode` and `name` are needed on each row.
+
+- **Required column missing, or empty for everyone:** the whole push stops and nothing changes. The run shows **Failed**, and ASP CORE gets a `400` naming the columns.
+- **One person's value is blank where the table says "No":** that person is skipped and reported, and everyone else is imported.
+- **`status` and `active`:** blank means that person has neither value. Please send both.
+- **Manager:** a person with neither value is still imported, because the top person in the company has no manager.
+
+Names are checked after the field map, so `shiftName` counts as `shift`. An Excel upload needs the same columns, except `hrmsId`, and it raises no alert because the admin sees the reason straight away. A stopped ASP CORE push raises a Critical alert.
+
+### Permission groups
+
+| Permission | What it is for |
+|---|---|
+| `employees:read:basic` | Who the person is. Every app that reads employees needs this one. |
+| `employees:read:org` | Where the person sits in the company. |
+| `employees:read:dates` | When the person joined and left. |
+| `employees:read:extra` | All the extra data. |
+
+Other permissions, such as `webhooks:subscribe`, `import:write` and `admin`, are not about reading employee fields, so they are in the [client apps and API keys guide](clients-and-api-keys-faq.md).
+
+### Fields in each permission group
+
+**`employees:read:basic`**
+
+| Field | Comes from |
+|---|---|
+| `employeeCode` | ASP CORE |
+| `hrmsId` | ASP CORE |
+| `name` | ASP CORE |
+| `email` | ASP CORE |
+| `active` | ASP CORE |
+| `status` | ASP CORE, as the standard word |
+| `statusRaw` | ASP CORE, as greytHR's exact words |
+| `shift` | ASP CORE's `shiftName` |
+| `lastModified` | ASP CORE |
+| `source` | PeopleHub: where the record came from |
+| `aliases` | PeopleHub: the person's old employee codes |
+
+**`employees:read:org`**
+
+| Field | Comes from |
+|---|---|
+| `department` | ASP CORE |
+| `designation` | ASP CORE |
+| `managerEmployeeCode` | ASP CORE |
+| `managerEmail` | ASP CORE |
+| `location` | ASP CORE |
+| `managerResolved` | PeopleHub: whether the manager was found |
+
+**`employees:read:dates`**
+
+| Field | Comes from |
+|---|---|
+| `dateOfJoining` | ASP CORE |
+| `leavingDate` | ASP CORE |
+
+**`employees:read:extra`**
+
+| Field | Comes from |
+|---|---|
+| `extra` | ASP CORE: `managerName`, `grade`, `gender`, `dateOfBirth`, `phone` and any other field not listed above |
+
+**How the permissions work together**
+
+- **Basic comes first.** An app needs `employees:read:basic` to read any employee, so a key with only `employees:read:extra` gets `403`.
+- **Permissions add up.** An app with basic and org sees both groups of fields.
+- **A field the app may not read is left out.** It doesn't arrive as empty, so an app can tell "not allowed" from "no value".
+- **Extra data is all or nothing.** An app with `employees:read:extra` sees every extra field, and an app without it sees none.
+
+---
+
+## 5. The Excel upload: `POST /import/excel`
 
 **When is it used?**
 When the push cannot be fixed in time (ASP CORE down, export broken) and the data must be up to date today. HR gives the employee sheet;
@@ -181,7 +299,7 @@ Yes, for 30 days, with a **Download uploaded workbook** button on the run's page
 
 ---
 
-## 5. The answers
+## 6. The answers
 
 Both endpoints answer the same way:
 
@@ -226,7 +344,7 @@ No. That row is **skipped** and listed in `errors`; every other row is applied. 
 
 ---
 
-## 6. Everyday situations
+## 7. Everyday situations
 
 **The night push did not arrive.**
 After 26 hours (24 + 2 grace) the *No successful employee import* alert fires. Follow the
@@ -256,7 +374,7 @@ wait for the push.
 
 ---
 
-## 7. Good to know
+## 8. Good to know
 
 **Is it safe to send the same list twice?**
 Yes. The second run finds nothing to change, so the counts are 0 and no events are sent. That is why ASP CORE may simply retry after a
@@ -278,7 +396,7 @@ Yes — `lastModified` without an offset is read as India time (`Import:SourceTi
 
 ---
 
-## 8. Quick reference
+## 9. Quick reference
 
 | Endpoint | In simple words |
 |---|---|

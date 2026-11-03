@@ -48,7 +48,6 @@ nav:
   - Getting started:
       - Connect an app in 5 steps: onboarding.md
       - What ASP CORE must send: it-contract.md
-      - Field list and permissions: help/field-list.md
   - Imports:
       - The push and Excel upload: help/import-faq.md
       - Import runs: help/import-runs-faq.md

@@ -8,14 +8,13 @@ there instead of each keeping their own copy. These guides explain how to use it
 | If you are… | Read this first |
 |---|---|
 | **An app team** connecting an app | [Connect an app in 5 steps](onboarding.md), then the [client library guide](help/client-library-faq.md) |
-| **The ASP CORE team** sending employee data | [What ASP CORE must send](it-contract.md), then the [field list and permissions](help/field-list.md) |
+| **The ASP CORE team** sending employee data | [What ASP CORE must send](it-contract.md), then [the push and Excel upload](help/import-faq.md) |
 | **A PeopleHub admin** | [Dashboard and audit log](help/dashboard-and-audit-faq.md), then [import runs](help/import-runs-faq.md) |
 
 ## All guides
 
 **Imports: how employee data gets in**
 
-- [Field list and permissions](help/field-list.md)
 - [The push and Excel upload](help/import-faq.md)
 - [Import runs: results, rejected runs and replay](help/import-runs-faq.md)
 - [Mappings, settings and alerts](help/mappings-settings-and-alerts-faq.md)
