@@ -85,11 +85,11 @@ Other personal fields, such as date of birth, gender or phone number, are kept a
 ## 4. Getting started
 
 1. We send you the **UAT** URL and key.
-2. You send your **first push** to UAT: the real, complete employee list. We inspect exactly what arrived, set the field mapping, and confirm status values with you.
-3. You schedule the nightly push to UAT for a few days; we compare with greytHR.
+2. You send your **first push** to UAT: the real, complete employee list. We inspect exactly what arrived, set the field mapping, confirm status values with you, and tell you if anything needs changing.
+3. You schedule the nightly push to UAT straight away. It runs for a few days and we compare with greytHR.
 4. We switch on strict validation, then send the **Prod** URL and key.
 
-If no successful push arrives within 26 hours we are alerted automatically. Contact: PeopleHub team, `<email / Teams channel>`.
+If no successful push arrives within 26 hours we are alerted automatically. Contact: the person who sent you this guide.
 
 ## 5. When you receive your key
 
@@ -105,6 +105,6 @@ We send you the address and the key privately. They are not in this guide.
    A `200` answer means it worked. Other answers are explained in section 3.
 
 3. **Tell us when you have sent it.** We check what arrived, set up the field names on our side, and tell you what to change, if anything.
-4. **Schedule the push** nightly, once we confirm the first push. After a full list has been sent, a much shorter list is rejected by the safety brake, and a slightly shorter one marks the missing people as having left, so always send everyone.
+4. **Schedule the push** nightly straight away. We tell you if anything needs changing after the first push. After a full list has been sent, a much shorter list is rejected by the safety brake, and a slightly shorter one marks the missing people as having left, so always send everyone.
 
 If the key is lost or may have leaked, tell us straight away. We issue a new one and stop the old one.
