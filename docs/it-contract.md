@@ -10,7 +10,6 @@ PeopleHub is the only consumer of this push; every other internal app reads from
 | **URL** | UAT: `https://<uat-peoplehub-host>/api/v1/import/employees` · Prod: `https://<prod-peoplehub-host>/api/v1/import/employees`. While UAT has no certificate its address starts with `http://`: use the exact address we give you. |
 | **Method** | `POST` |
 | **Headers** | `Content-Type: application/json` · `X-Api-Key: <key we give you>` (one key per environment; keep it secret) |
-| **Source IP** | Calls must come from the ASP CORE server(s); tell us their IPs so we can allow-list them. |
 | **Schedule** | Nightly (we suggest 01:00 IST). If you can push more often (every few hours) or on demand, tell us — no change needed on your side. |
 | **Size** | All employees in one call (≈ 600 rows, well under 1 MB; the limit is 20 MB). |
 
@@ -79,7 +78,7 @@ Other personal fields, such as date of birth, gender or phone number, are kept a
 | `200` | Imported. Body: `{ "runId", "status": "Succeeded", "received", "created", "updated", "deactivated", "reactivated", "skipped", "errors": [ … ], "warnings": [ … ] }` | Log `runId` and the counts. Rows listed in `errors` were skipped (the rest were imported); we fix those with HR. |
 | `422` | **Rejected by the safety brake**: the list would deactivate more than 5 % of active employees, or is less than 80 % of the previous list. Nothing was applied; we are alerted. | **Do not retry.** Usually a partial or failed extract — check the export. If the change is genuine (mass exit), we approve it on our side. |
 | `400` | Body is not readable JSON, has no employee array, or (with strict validation on) a required column is missing: the answer names it, for example `Missing required columns: hrmsId, dateOfJoining.` Nothing was applied. Stored for diagnosis. | Fix the export; retry. |
-| `401` / `403` | Missing or wrong key, or call from an IP not on the allow-list. | Check the key and source IP. |
+| `401` / `403` | Missing or wrong key. | Check the key. |
 | `409` | Another import is still running. | Retry after a few minutes. |
 | `5xx` / timeout | PeopleHub unavailable. | Retry up to 3 times, 5 minutes apart. Resending the same list is always safe (it changes nothing twice). |
 
@@ -96,9 +95,8 @@ If no successful push arrives within 26 hours we are alerted automatically. Cont
 
 We send you the address and the key privately. They are not in this guide.
 
-1. **Tell us your server's IP address**, so we can allow it. Until we do, your calls may get `403`.
-2. **Store the key safely:** in your server's settings or secret store, never in code, and not in email or chat. It only allows sending the employee list.
-3. **Send your first push by hand.** Send the real, complete employee list, whether the address starts with `http://` or `https://`. Your file must be a JSON list like the one in section 2:
+1. **Store the key safely:** in your server's settings or secret store, never in code, and not in email or chat. It only allows sending the employee list.
+2. **Send your first push by hand.** Send the real, complete employee list, whether the address starts with `http://` or `https://`. Your file must be a JSON list like the one in section 2:
 
    ```bash
    curl -X POST <address we give you> -H "X-Api-Key: <your key>" -H "Content-Type: application/json" -d @employees.json
@@ -106,7 +104,7 @@ We send you the address and the key privately. They are not in this guide.
 
    A `200` answer means it worked. Other answers are explained in section 3.
 
-4. **Tell us when you have sent it.** We check what arrived, set up the field names on our side, and tell you what to change, if anything.
-5. **Schedule the push** nightly, once we confirm the first push. After a full list has been sent, a much shorter list is rejected by the safety brake, and a slightly shorter one marks the missing people as having left, so always send everyone.
+3. **Tell us when you have sent it.** We check what arrived, set up the field names on our side, and tell you what to change, if anything.
+4. **Schedule the push** nightly, once we confirm the first push. After a full list has been sent, a much shorter list is rejected by the safety brake, and a slightly shorter one marks the missing people as having left, so always send everyone.
 
 If the key is lost or may have leaked, tell us straight away. We issue a new one and stop the old one.
