@@ -59,7 +59,7 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 | `leavingDate` | no | date `yyyy-MM-dd` | |
 | `lastModified` | no | timestamp | ISO 8601 with offset; without an offset we read it as IST. |
 
-\* These checks start when we switch on strict validation, after the first test pushes:
+\* These checks start when we switch on strict validation, after the first pushes:
 
 - **A required column is missing, or empty for everyone:** the whole push stops with `400`, and nothing is applied. "One of the two" means the push stops only if both columns are missing or empty for everyone.
 - **One person's value is blank:** that person is skipped and listed in `errors`, and everyone else is imported. A blank shift or manager is allowed for one person; a person is skipped only if both `status` and `active` are blank.
@@ -86,7 +86,7 @@ Other personal fields, such as date of birth, gender or phone number, are kept a
 ## 4. Getting started
 
 1. We send you the **UAT** URL and key.
-2. You send **one sample push** to UAT. We inspect exactly what arrived, set the field mapping, and confirm status values with you.
+2. You send your **first push** to UAT: the real, complete employee list. We inspect exactly what arrived, set the field mapping, and confirm status values with you.
 3. You schedule the nightly push to UAT for a few days; we compare with greytHR.
 4. We switch on strict validation, then send the **Prod** URL and key.
 
@@ -98,7 +98,7 @@ We send you the address and the key privately. They are not in this guide.
 
 1. **Tell us your server's IP address**, so we can allow it. Until we do, your calls may get `403`.
 2. **Store the key safely:** in your server's settings or secret store, never in code, and not in email or chat. It only allows sending the employee list.
-3. **Try one call by hand.** Use made-up test employees while the UAT address starts with `http://`, because the key and the data travel unencrypted until UAT has a certificate. Your file must be a JSON list like the one in section 2:
+3. **Send your first push by hand.** Send the real, complete employee list, whether the address starts with `http://` or `https://`. Your file must be a JSON list like the one in section 2:
 
    ```bash
    curl -X POST <address we give you> -H "X-Api-Key: <your key>" -H "Content-Type: application/json" -d @employees.json
@@ -107,6 +107,6 @@ We send you the address and the key privately. They are not in this guide.
    A `200` answer means it worked. Other answers are explained in section 3.
 
 4. **Tell us when you have sent it.** We check what arrived, set up the field names on our side, and tell you what to change, if anything.
-5. **Build the real push and schedule it** nightly, once we confirm the sample. After a full list has been sent, a much shorter list is rejected by the safety brake, and a slightly shorter one marks the missing people as having left, so always send everyone.
+5. **Schedule the push** nightly, once we confirm the first push. After a full list has been sent, a much shorter list is rejected by the safety brake, and a slightly shorter one marks the missing people as having left, so always send everyone.
 
 If the key is lost or may have leaked, tell us straight away. We issue a new one and stop the old one.
