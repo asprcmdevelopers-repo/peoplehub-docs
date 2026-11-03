@@ -106,7 +106,7 @@ which incoming name means which PeopleHub field, so nobody has to change ASP COR
 | **Excel-only column headers** (`ExcelFieldMap`) | Extra lines used **only for Excel uploads**, on top of the field map — HR's sheet headers (`Emp Code`, `Date of Joining`) | none |
 | **Array path** (`ArrayPath`) | Where the list of employees sits in ASP CORE's JSON: `$` = the body is the list; `$.employees` or `$.data.items` when it is wrapped | `$` |
 | **Date formats** (`DateFormats`) | Accepted date formats, tried in order | `yyyy-MM-dd`, `dd/MM/yyyy`, `dd-MM-yyyy`, `dd-MMM-yyyy`, `dd MMM yyyy`, `d/M/yyyy` |
-| **Strict mode** (`Strict`) | Off: only code and name are required; a bad optional value (wrong date) is dropped with a warning. **On:** email, department, designation, date of joining and status-or-active are also required, a bad value rejects the row, and unknown fields are listed as a warning. Switch on once the mapping is agreed with IT. | off |
+| **Strict mode** (`Strict`) | Off: only code and name are required; a bad optional value (wrong date) is dropped with a warning. **On:** a required column that is missing or empty for everyone stops the whole import (code, hrmsId on a push, name, email, department, designation, date of joining, shift, status-or-active, manager code-or-email). A blank email, department, designation, date of joining, status-and-active or hrmsId (push only) skips that person, a bad value rejects the row, and unknown fields are listed as a warning. Switch on once the mapping is agreed with IT. | off |
 
 ### The field map endpoints
 
@@ -192,6 +192,7 @@ environment (`Alerts:EnvironmentName`), so a UAT alert is not mistaken for Prod.
 |---|---|---|---|
 | **No successful employee import** (`missed_run`) | Critical | No import has succeeded for `ExpectedIntervalHours` + `AlertGraceHours` (24 + 2 h). Checked every 15 minutes; closes by itself once an import succeeds again. | Internal runbook: missed run |
 | **Import run N rejected by the safety brake** (`safety_brake`) | Critical | A run would deactivate too many people or was much smaller than the last | Internal runbook: rejected run |
+| **Import run N stopped: required columns are missing** (`required_columns_missing`) | Critical | Strict mode is on and an ASP CORE push lacks a required column. Nothing was applied. | Internal runbook: payload changed |
 | **Import run N had X invalid rows** (`import_errors`) | Warning | A run skipped more than `Alerts:ErrorRowThreshold` (10) rows | Open the run's errors; fix the data in greytHR or the field map |
 | **Webhook deliveries to <app> are failing** (`webhook_dead_letter`) | Warning | A delivery failed every attempt (about an hour) | [Webhooks FAQ](webhooks-faq.md); fix the app, then replay dead letters |
 | **Rehire candidates waiting for review** (`rehire_review`) | Warning | A rehire suggestion has been open more than `Alerts:RehireReviewDays` (7) | [Rehire review](admin-employees-and-rehire-faq.md#4-rehire-review) |

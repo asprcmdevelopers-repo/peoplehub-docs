@@ -37,7 +37,7 @@ having left. That is how leavers are detected, and it is why a half-empty list i
 |---|---|
 | Succeeded | Applied. |
 | Rejected | Stopped by the safety brake. **Nothing was applied.** An admin can look at it and approve it if the change is genuine. |
-| Failed | The data could not be read at all (not JSON, no employee list found). Nothing was applied. |
+| Failed | The data could not be read at all (not JSON, no employee list found), or, in strict mode, a required column was missing. Nothing was applied. A failed run cannot be approved: fix the export and send again, or fix the field map and replay it. |
 | Superseded | A rejected run that a newer successful run has replaced. It can no longer be approved. |
 | Processing | Running right now. |
 
@@ -175,8 +175,8 @@ The rows would have been **imported**, but not completely right:
 - `grade` → `extra` (intended); `salary` → dropped (sensitive).
 
 So map every field apps need. Two safety nets: **Field map → Preview** lists every incoming field and what it becomes
-(`doj → (extra)` shows a forgotten mapping), and **Strict mode** (`Import:Strict`, switch on once the mapping is agreed) rejects
-rows missing email, department, designation or date of joining instead of importing them incomplete.
+(`doj → (extra)` shows a forgotten mapping), and **Strict mode** (`Import:Strict`, switch on once the mapping is agreed) stops the
+whole import when a required column is missing, and skips a person whose required value is blank instead of importing them incomplete.
 
 **Which incoming names match without a field-map row?**
 Any name that equals a PeopleHub field once case, spaces and separators are ignored: `employeeCode`, `Employee Code`,

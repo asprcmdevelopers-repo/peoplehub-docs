@@ -109,8 +109,14 @@ A JSON array, one object per employee:
 ]
 ```
 
-Only `employeeCode` and `name` are required (more in **strict mode**). The full field list and what ASP CORE should do with each
+Only `employeeCode` and `name` are required (more in **strict mode**, see *Which columns does strict mode require?* below). The full field list and what ASP CORE should do with each
 answer are in the [IT contract](../it-contract.md), the document given to the ASP CORE team.
+
+**Which columns does strict mode require?**
+`employeeCode`, `hrmsId`, `name`, `email`, `department`, `designation`, `dateOfJoining`, `shift`, one of `status`/`active`, and one of
+`managerEmployeeCode`/`managerEmail`. Names are checked after the field map, so `shiftName` counts as `shift`. An Excel sheet needs the
+same columns except `hrmsId`. If a required column is missing or empty for everyone, the whole import stops: `400`, run **Failed**,
+nothing applied. An ASP CORE push also raises a Critical alert.
 
 **What if ASP CORE wraps the list, like `{ "employees": [ … ] }`?**
 Fine — set **Field map → Array path** to `$.employees`. The default `$` means a bare array.
@@ -170,7 +176,7 @@ Yes, for 30 days, with a **Download uploaded workbook** button on the run's page
 |---|---|
 | `400` *No file uploaded* | No file in the field `file` |
 | `400` *Unsupported file type* | Not an `.xlsx` |
-| `400` *Payload could not be processed* | The workbook cannot be read, or the sheet name does not exist — the run is recorded as **Failed** with the reason |
+| `400` *Payload could not be processed* | The workbook cannot be read, the sheet name does not exist, or (strict mode) a required column is missing — the run is recorded as **Failed** with the reason |
 | `413` *File too large* | Over 20 MB |
 
 ---
@@ -183,7 +189,7 @@ Both endpoints answer the same way:
 |---|---|---|---|
 | `200` | **Succeeded** | Applied | Nothing; skipped rows (if any) are listed in `errors` |
 | `422` | **Rejected** | The safety brake stopped it; nothing applied; Critical alert | ASP CORE: **do not retry**. Admin: check the run, approve only if genuine |
-| `400` | **Failed** | Could not be read (not JSON, no array at the array path, unreadable workbook) | Fix the export or the array path, send again |
+| `400` | **Failed** | Could not be read (not JSON, no array at the array path, unreadable workbook), or a required column is missing in strict mode | Fix the export or the mapping, send again |
 | `409` | **Failed** | Another import was still running (PeopleHub waits up to 30 s, `Import:LockTimeoutSeconds`) | Send again a few minutes later |
 | `401` | — (no run) | Missing, wrong, expired or revoked key | Check the key |
 | `403` | — (no run) | The key lacks the scope, or the address is not allowed | Check the scope / `AllowedSourceIps` |
@@ -204,11 +210,11 @@ A `422` has the same counts (what *would* have happened) plus `brake`: the reaso
 created. ASP CORE should log the `runId` — it is the number to quote when asking about a push.
 
 **One bad row — does the whole push fail?**
-No. That row is **skipped** and listed in `errors`; every other row is applied. Common reasons:
+No. That row is **skipped** and listed in `errors`; every other row is applied. Someone already in PeopleHub stays as they were and is not marked as left. Common reasons:
 
 | Code | Meaning |
 |---|---|
-| `missing_required` | No `employeeCode` or `name` (or, in strict mode, another required field) |
+| `missing_required` | No `employeeCode` or `name` (or, in strict mode, another required value such as `hrmsId` on a push) |
 | `duplicate_code` | The same code appears twice; the first row was used |
 | `duplicate_email` | Two active people in the list have the same email |
 | `invalid_email`, `invalid_boolean`, `invalid_type` | A value in the wrong format |

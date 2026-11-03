@@ -43,23 +43,28 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 
 | Field | Required | Type / format | Notes |
 |---|---|---|---|
-| `employeeCode` | **yes** | text | The company's own employee code. Never reuse a code for a different person. |
+| `employeeCode` | **yes*** | text | The company's own employee code. Never reuse a code for a different person. |
 | `hrmsId` | yes* | text | greytHR's own unique key for the person. Must be different for every person; a rehire gets a new one. |
-| `name` | **yes** | text | Full name. |
+| `name` | **yes*** | text | Full name. |
 | `email` | yes* | text | Official email. Used to detect rehires and to match managers. |
 | `department` | yes* | text | |
 | `designation` | yes* | text | |
-| `managerEmployeeCode` | preferred | text | Reporting manager's employee code. |
-| `managerEmail` | if no code | text | Only needed when the manager's code is not available. |
+| `managerEmployeeCode` | one of the two* | text | Reporting manager's employee code. Preferred. May be blank for a person with no manager. |
+| `managerEmail` | one of the two* | text | Reporting manager's email. May be blank for a person with no manager. |
 | `location` | no | text | |
-| `shift` or `shiftName` | when known | text | The employee's shift exactly as greytHR shows it (e.g. `General`, `US Night`). |
+| `shift` or `shiftName` | yes* | text | The employee's shift exactly as greytHR shows it (e.g. `General`, `US Night`). May be blank for a person with no shift. |
 | `dateOfJoining` | yes* | date `yyyy-MM-dd` | Date only, no time. `dd/MM/yyyy` also accepted. |
-| `active` | yes* | `true` / `false` | `false` for resigned, absconded, terminated. (`1/0`, `Y/N`, `Yes/No` also accepted.) |
-| `status` | yes* | text | greytHR status exactly as greytHR shows it (Active, Notice Period, Resigned, Absconded, Terminated, …). |
-| `leavingDate` | when known | date `yyyy-MM-dd` | |
+| `active` | one of the two* | `true` / `false` | `false` for resigned, absconded, terminated. (`1/0`, `Y/N`, `Yes/No` also accepted.) |
+| `status` | one of the two* | text | greytHR status exactly as greytHR shows it (Active, Notice Period, Resigned, Absconded, Terminated, …). Please send both `status` and `active`. |
+| `leavingDate` | no | date `yyyy-MM-dd` | |
 | `lastModified` | no | timestamp | ISO 8601 with offset; without an offset we read it as IST. |
 
-\* Rows missing these are accepted today; once we switch on strict validation (after the first test pushes) they will be rejected.
+\* These checks start when we switch on strict validation, after the first test pushes:
+
+- **A required column is missing, or empty for everyone:** the whole push stops with `400`, and nothing is applied. "One of the two" means the push stops only if both columns are missing or empty for everyone.
+- **One person's value is blank:** that person is skipped and listed in `errors`, and everyone else is imported. A blank shift or manager is allowed for one person; a person is skipped only if both `status` and `active` are blank.
+
+Until then, only `employeeCode` and `name` are needed on each row.
 
 **Field names:** if ASP CORE already uses other names (`emp_id`, `doj`, …) or adds more fields, send them as they are — we map names on our side.
 Extra fields are kept, not lost.
@@ -73,7 +78,7 @@ Other personal fields, such as date of birth, gender or phone number, are kept a
 |---|---|---|
 | `200` | Imported. Body: `{ "runId", "status": "Succeeded", "received", "created", "updated", "deactivated", "reactivated", "skipped", "errors": [ … ], "warnings": [ … ] }` | Log `runId` and the counts. Rows listed in `errors` were skipped (the rest were imported); we fix those with HR. |
 | `422` | **Rejected by the safety brake**: the list would deactivate more than 5 % of active employees, or is less than 80 % of the previous list. Nothing was applied; we are alerted. | **Do not retry.** Usually a partial or failed extract — check the export. If the change is genuine (mass exit), we approve it on our side. |
-| `400` | Body is not readable JSON or has no employee array. Stored for diagnosis. | Fix the export; retry. |
+| `400` | Body is not readable JSON, has no employee array, or (with strict validation on) a required column is missing: the answer names it, for example `Missing required columns: hrmsId, dateOfJoining.` Nothing was applied. Stored for diagnosis. | Fix the export; retry. |
 | `401` / `403` | Missing or wrong key, or call from an IP not on the allow-list. | Check the key and source IP. |
 | `409` | Another import is still running. | Retry after a few minutes. |
 | `5xx` / timeout | PeopleHub unavailable. | Retry up to 3 times, 5 minutes apart. Resending the same list is always safe (it changes nothing twice). |
