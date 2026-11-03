@@ -87,7 +87,7 @@ Long lists scroll inside their own box with the headings fixed, so the page stay
 
 **In Errors and Warnings, what does "row 20" or "run" mean?**
 The row number is the position in the incoming list (1 = first employee). **"run"** (row 0 in the API) means a note about the whole
-payload, for example *"Sensitive fields were dropped at the boundary: Mobile No."*
+payload, for example *"Sensitive fields were dropped at the boundary: PAN No."*
 
 ---
 
@@ -172,7 +172,7 @@ The rows would have been **imported**, but not completely right:
 
 - `email`, `department`, `designation`, `location`, `status` already match PeopleHub's names → proper fields;
 - `doj` and `manager_id` (unknown names) → kept in `extra`, so *date of joining* stays empty and *nobody has a manager*;
-- `grade` → `extra` (intended); `mobile` → dropped (sensitive).
+- `grade` → `extra` (intended); `salary` → dropped (sensitive).
 
 So map every field apps need. Two safety nets: **Field map → Preview** lists every incoming field and what it becomes
 (`doj → (extra)` shows a forgotten mapping), and **Strict mode** (`Import:Strict`, switch on once the mapping is agreed) rejects
@@ -228,7 +228,7 @@ counts as a change (apps receive an *updated* event for it). Upload the same she
 | ASP0045 resigned, Active = No | Deactivated | Changes → *Deactivated*; employee page shows *Inactive · Resigned*, reason `feed_inactive` |
 | ASP0033 broken email | Skipped, person stays active | Run #6 → **Errors** (`invalid_email`); employee page has no run #6 entries |
 | ASP0020 status "Sabbatical" | Imported as Unknown | Run #6 → **Warnings** (`unknown_status`); **Status mappings** → *Seen but not mapped* |
-| *Mobile No* column | Dropped | Run #6 → **Warnings** (row "run"); appears on no employee page |
+| *Mobile No* column | Kept in `extra` | Employee page → *Extra fields* |
 | *Grade* column | Kept in `extra` | Employee page → *Extra fields* `{"Grade":"L1"}` |
 
 The test sheets `hr-employees-sample.xlsx` and `hr-employees-broken-half.xlsx` (only 30 people: the safety brake should reject it)
@@ -265,7 +265,7 @@ PeopleHub keeps two different things:
 | What | The payload as it arrived, untouched | The cleaned data PeopleHub stores |
 | Who sees it | Admins only | Every connected app (API, events) |
 | How long | 30 days | Permanently (history 2 years) |
-| Sensitive fields (`mobile`, salary, DOB, PAN, Aadhaar…) | **still there** | **removed** |
+| Sensitive fields (salary, PAN, Aadhaar, bank details…) | **still there** | **removed** |
 
 So a sensitive field never reaches any app, but the admin-only raw copy still contains it for up to 30 days. (Possible change if
 preferred: strip deny-listed fields from the raw copy as well before saving it; replay would still work.)
@@ -332,7 +332,7 @@ audit log. API: `POST /api/v1/admin/employees/{code}/aliases/{aliasCode}/unlink`
 
 **Are PeopleHub's fields fixed?**
 Yes. The fields an incoming name can be mapped to are fixed: `employeeCode, name, email, department, designation, managerEmployeeCode,
-managerEmail, location, shift, dateOfJoining, active, status, leavingDate, lastModified`. Anything else goes into `extra` (sensitive fields are
+managerEmail, location, shift, hrmsId, dateOfJoining, active, status, leavingDate, lastModified`. Anything else goes into `extra` (sensitive fields are
 dropped).
 
 **Why fixed?**

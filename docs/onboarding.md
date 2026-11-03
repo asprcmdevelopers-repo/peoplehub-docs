@@ -11,10 +11,9 @@ Admin UI → **Client apps & keys** → *Add a client app*. Tick only the scopes
 
 | Scope | Gives |
 |---|---|
-| `employees:read:basic` | employeeCode, name, email, active, status, source, aliases |
+| `employees:read:basic` | employeeCode, hrmsId, name, email, active, status, shift, source, aliases |
 | `employees:read:org` | + department, designation, manager, location; `/departments`, `/manager`, `/reports` |
 | `employees:read:dates` | + date of joining, leaving date |
-| `employees:read:shift` | + shift (from greytHR) |
 | `employees:read:extra` | + extra greytHR fields |
 | `webhooks:subscribe` | the app may receive change events by webhook |
 
@@ -53,7 +52,7 @@ Implement `IEmployeeChangedHandler` (or derive from `EmployeeChangedHandler`): `
 
 - Map department/designation to *your* roles, create or deactivate accounts, reassign approvals, compute derived fields.
 - Keep app-owned data (roles, cost centres) in your own tables keyed by `EmployeeCode`; the library only writes HR fields.
-  The shift is HR data from greytHR: read it from `employee.Shift` (scope `employees:read:shift`) instead of keeping your own.
+  The shift is HR data from greytHR: read it from `employee.Shift` instead of keeping your own.
 
 - App rules ("every active employee needs a shift") go to the app's own review list — never back to PeopleHub.
 - Make every method idempotent: delivery is at-least-once (duplicates are filtered, but a retry after a crash can repeat a call).

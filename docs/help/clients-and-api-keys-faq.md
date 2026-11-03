@@ -39,10 +39,9 @@ app's key can be changed or switched off without touching the others.
 
 | Scope | Allows | Typical app |
 |---|---|---|
-| `employees:read:basic` | code, name, email, active, status, source, old codes | every reading app |
+| `employees:read:basic` | code, greytHR ID (`hrmsId`), name, email, active, status, shift, source, old codes | every reading app |
 | `employees:read:org` | + department, designation, manager, location; `/manager`, `/reports`, `/departments` | Timesheet (approvals) |
 | `employees:read:dates` | + date of joining, leaving date | HR reports |
-| `employees:read:shift` | + shift (from greytHR) | Timesheet and other apps that work with shifts |
 | `employees:read:extra` | + extra fields (Grade…) | only if really needed |
 | `webhooks:subscribe` | register its own webhook | apps that want changes within seconds |
 | `import:write` | **push** employee data | **ASP CORE only** |

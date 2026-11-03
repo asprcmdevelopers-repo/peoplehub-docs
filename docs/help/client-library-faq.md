@@ -91,7 +91,7 @@ Inject `IPeopleHubClient` wherever you need employee data.
 | `SubscribeWebhookAsync(url)` | Registers the webhook; returns the secret once | No | No |
 
 **What does a field I may not see look like?**
-`null`. `Department` needs `employees:read:org`, `DateOfJoining` needs `employees:read:dates`, `Shift` needs `employees:read:shift`,
+`null`. `Department` needs `employees:read:org`, `DateOfJoining` needs `employees:read:dates`,
 `Extra` needs `employees:read:extra`. See the [clients and API keys FAQ](clients-and-api-keys-faq.md#2-scopes-what-an-app-may-do).
 
 **What if PeopleHub has a hiccup?**
@@ -226,7 +226,7 @@ Set `CreateSchemaOnStartup = false` and have the DBA run the scripts from the pa
 Each is safe to run more than once.
 
 **What happens when I upgrade the package?**
-New columns are added by themselves on the next start (v2 added `shift`). If your DBA runs the scripts, they run the new one first.
+New columns are added by themselves on the next start (v2 added `shift`, v3 added `hrms_id`). If your DBA runs the scripts, they run the new one first.
 
 **Store settings**
 
@@ -350,9 +350,9 @@ Ask a PeopleHub admin to **Request full resync**, or call `PeopleHubSynchronizer
 **My app starts seeing nulls in a field.**
 Its key probably lacks the scope. Ask an admin to add it on **Client apps**; the key stays the same.
 
-**We just got the `employees:read:shift` scope (or any new scope), but the copy is empty.**
-A new scope shows the field on **future** reads and events; it does not resend old data. If shifts were already in PeopleHub when the scope was ticked,
-**request a full resync once**. If the scope was ticked before ASP CORE's first push with shifts, nothing is needed: that push sends an event for everyone.
+**We just got a new scope, but the copy is empty.**
+A new scope shows the field on **future** reads and events; it does not resend old data. If the data was already in PeopleHub when the scope was ticked,
+**request a full resync once**.
 
 **Changes stopped arriving.**
 Look in your log for `PeopleHub sync failed; will retry`:

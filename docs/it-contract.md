@@ -22,6 +22,7 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 ```json
 [
   {
+    "hrmsId": "1042871",
     "employeeCode": "ASP1042",
     "name": "Priya Raman",
     "email": "priya.raman@example.com",
@@ -42,7 +43,8 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 
 | Field | Required | Type / format | Notes |
 |---|---|---|---|
-| `employeeCode` | **yes** | text | greytHR employee ID. Never reuse a code for a different person. |
+| `employeeCode` | **yes** | text | The company's own employee code. Never reuse a code for a different person. |
+| `hrmsId` | yes* | text | greytHR's own unique key for the person. Must be different for every person; a rehire gets a new one. |
 | `name` | **yes** | text | Full name. |
 | `email` | yes* | text | Official email. Used to detect rehires and to match managers. |
 | `department` | yes* | text | |
@@ -50,7 +52,7 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 | `managerEmployeeCode` | preferred | text | Reporting manager's employee code. |
 | `managerEmail` | if no code | text | Only needed when the manager's code is not available. |
 | `location` | no | text | |
-| `shift` | when known | text | The employee's shift exactly as greytHR shows it (e.g. `General`, `US Night`). |
+| `shift` or `shiftName` | when known | text | The employee's shift exactly as greytHR shows it (e.g. `General`, `US Night`). |
 | `dateOfJoining` | yes* | date `yyyy-MM-dd` | Date only, no time. `dd/MM/yyyy` also accepted. |
 | `active` | yes* | `true` / `false` | `false` for resigned, absconded, terminated. (`1/0`, `Y/N`, `Yes/No` also accepted.) |
 | `status` | yes* | text | greytHR status exactly as greytHR shows it (Active, Notice Period, Resigned, Absconded, Terminated, …). |
@@ -62,8 +64,8 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 **Field names:** if ASP CORE already uses other names (`emp_id`, `doj`, …) or adds more fields, send them as they are — we map names on our side.
 Extra fields are kept, not lost.
 
-**Never send:** salary/CTC, date of birth, phone numbers, PAN, Aadhaar, passport, bank details. If they arrive we drop them and log it,
-but please leave them out.
+**Never send:** salary/CTC, PAN, Aadhaar, passport, UAN, bank details. If they arrive we drop them and log it, but please leave them out.
+Other personal fields, such as date of birth, gender or phone number, are kept as extra fields if you send them.
 
 ## 3. The answer
 

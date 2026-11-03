@@ -96,7 +96,7 @@ which incoming name means which PeopleHub field, so nobody has to change ASP COR
 | Same name as a PeopleHub field (case, spaces and `_` ignored: `Employee_Code` = `employeeCode`) | That field — no mapping needed |
 | Listed in the field map | The PeopleHub field it maps to |
 | Mapped to `-` | **Dropped** (thrown away) |
-| On the sensitive list (salary, phone, PAN, Aadhaar, bank account, date of birth …) | **Always dropped**, whatever the map says |
+| On the sensitive list (salary, PAN, Aadhaar, passport, bank account …) | **Always dropped**, whatever the map says |
 | Anything else | Kept in **`extra`** (apps with the `employees:read:extra` scope can see it) |
 
 **What are the other mapping settings?**

@@ -65,10 +65,9 @@ Each app has its **own API key** (Admin UI → **Client apps**). What the key ma
 
 | Scope | Fields the app sees |
 |---|---|
-| `employees:read:basic` | code, name, email, active, status, source, old codes (aliases) |
+| `employees:read:basic` | code, greytHR ID (`hrmsId`), name, email, active, status, shift (e.g. General, US Night), source, old codes (aliases) |
 | `employees:read:org` | + department, designation, manager, location |
 | `employees:read:dates` | + date of joining, leaving date |
-| `employees:read:shift` | + shift (e.g. General, US Night) |
 | `employees:read:extra` | + extra fields (e.g. Grade) |
 
 A field the key cannot see comes back as `null`. Two apps asking for the same person can get different answers — on purpose.

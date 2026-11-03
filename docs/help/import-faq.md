@@ -118,9 +118,15 @@ Fine — set **Field map → Array path** to `$.employees`. The default `$` mean
 **What if ASP CORE uses other field names (`emp_id`, `doj` …)?**
 Fine — add them to the **Field map**. ASP CORE does not need to change anything.
 
-**What if ASP CORE sends salary, phone or bank details?**
+**What if ASP CORE sends salary, PAN or bank details?**
 They are **dropped** before anything is stored in an employee record, and a warning is logged in the run. Ask them to leave such
-fields out anyway.
+fields out anyway. Other personal fields, such as date of birth, gender or phone, are kept in `extra`, which only apps with
+`employees:read:extra` can read.
+
+**What if two people arrive with the same `hrmsId`?**
+`hrmsId` is greytHR's own unique key, so each value may belong to one employee code only. The second row in a list, or a row whose `hrmsId`
+already belongs to another code, is **skipped with an error** (`duplicate_hrms_id` or `hrms_id_in_use`). That person keeps their current
+details and stays active. A blank `hrmsId` never erases the stored one.
 
 **How big may the list be?**
 Up to **20 MB** (`Import:MaxPayloadBytes`) — far more than the company needs.
