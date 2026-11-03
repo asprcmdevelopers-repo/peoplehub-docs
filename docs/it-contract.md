@@ -65,6 +65,8 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 
 Until then, only `employeeCode` and `name` are needed on each row.
 
+The [field list and permissions](help/field-list.md) page shows where each field is stored and who can read it.
+
 **Field names:** if ASP CORE already uses other names (`emp_id`, `doj`, …) or adds more fields, send them as they are — we map names on our side.
 Extra fields are kept, not lost.
 
