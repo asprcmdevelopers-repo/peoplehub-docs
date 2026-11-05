@@ -12,7 +12,7 @@ Admin UI → **Client apps & keys** → *Add a client app*. Tick only the scopes
 | Scope | Gives |
 |---|---|
 | `employees:read:basic` | employeeCode, hrmsId, name, email, active, status, shift, source, aliases |
-| `employees:read:org` | + department, designation, manager, location; `/departments`, `/manager`, `/reports` |
+| `employees:read:org` | + department, designation, manager, location, grade, level; `/departments`, `/manager`, `/reports` |
 | `employees:read:dates` | + date of joining, leaving date |
 | `employees:read:extra` | + extra greytHR fields |
 | `webhooks:subscribe` | the app may receive change events by webhook |

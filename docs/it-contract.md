@@ -31,11 +31,12 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
     "managerEmail": "k.iyer@example.com",
     "location": "Chennai",
     "shift": "US Night",
+    "grade": "G5",
+    "level": "L3",
     "dateOfJoining": "2023-04-17",
     "active": true,
     "status": "Notice Period",
-    "leavingDate": "2026-11-30",
-    "lastModified": "2026-10-30T18:22:05+05:30"
+    "leavingDate": "2026-11-30"
   }
 ]
 ```
@@ -52,16 +53,17 @@ An envelope such as `{ "employees": [ … ] }` is also fine. **Anyone missing fr
 | `managerEmail` | one of the two* | text | Reporting manager's email. May be blank for a person with no manager. |
 | `location` | no | text | |
 | `shift` or `shiftName` | yes* | text | The employee's shift exactly as greytHR shows it (e.g. `General`, `US Night`). May be blank for a person with no shift. |
+| `grade` | yes* | text | The employee's grade as greytHR shows it. May be blank for a person with no grade. |
+| `level` | yes* | text | The employee's level as greytHR shows it. May be blank for a person with no level. |
 | `dateOfJoining` | yes* | date `yyyy-MM-dd` | Date only, no time. `dd/MM/yyyy` also accepted. |
 | `active` | one of the two* | `true` / `false` | `false` for resigned, absconded, terminated. (`1/0`, `Y/N`, `Yes/No` also accepted.) |
 | `status` | one of the two* | text | greytHR status exactly as greytHR shows it (Active, Notice Period, Resigned, Absconded, Terminated, …). Please send both `status` and `active`. |
 | `leavingDate` | no | date `yyyy-MM-dd` | |
-| `lastModified` | no | timestamp | ISO 8601 with offset; without an offset we read it as IST. |
 
 \* These checks start when we switch on strict validation, after the first pushes:
 
 - **A required column is missing, or empty for everyone:** the whole push stops with `400`, and nothing is applied. "One of the two" means the push stops only if both columns are missing or empty for everyone.
-- **One person's value is blank:** that person is skipped and listed in `errors`, and everyone else is imported. A blank shift or manager is allowed for one person; a person is skipped only if both `status` and `active` are blank.
+- **One person's value is blank:** that person is skipped and listed in `errors`, and everyone else is imported. A blank shift, grade, level or manager is allowed for one person; a person is skipped only if both `status` and `active` are blank.
 
 Until then, only `employeeCode` and `name` are needed on each row.
 

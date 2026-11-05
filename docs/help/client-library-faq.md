@@ -226,7 +226,7 @@ Set `CreateSchemaOnStartup = false` and have the DBA run the scripts from the pa
 Each is safe to run more than once.
 
 **What happens when I upgrade the package?**
-New columns are added by themselves on the next start (v2 added `shift`, v3 added `hrms_id`). If your DBA runs the scripts, they run the new one first.
+New columns are added by themselves on the next start (v2 added `shift`, v3 added `hrms_id`, v4 added `grade` and `level`). If your DBA runs the scripts, they run the new one first.
 
 **Store settings**
 

@@ -40,9 +40,9 @@ app's key can be changed or switched off without touching the others.
 | Scope | Allows | Typical app |
 |---|---|---|
 | `employees:read:basic` | code, greytHR ID (`hrmsId`), name, email, active, status, shift, source, old codes | every reading app |
-| `employees:read:org` | + department, designation, manager, location; `/manager`, `/reports`, `/departments` | Timesheet (approvals) |
+| `employees:read:org` | + department, designation, manager, location, grade, level; `/manager`, `/reports`, `/departments` | Timesheet (approvals) |
 | `employees:read:dates` | + date of joining, leaving date | HR reports |
-| `employees:read:extra` | + extra fields (Grade…) | only if really needed |
+| `employees:read:extra` | + extra fields (Gender…) | only if really needed |
 | `webhooks:subscribe` | register its own webhook | apps that want changes within seconds |
 | `import:write` | **push** employee data | **ASP CORE only** |
 | `admin` | the admin API (everything under "Admin:" in Swagger) | admin scripts, rarely |

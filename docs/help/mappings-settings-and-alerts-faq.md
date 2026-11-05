@@ -86,8 +86,8 @@ ASP CORE may call the code `emp_id` and the name `full_name`; PeopleHub calls th
 which incoming name means which PeopleHub field, so nobody has to change ASP CORE's export.
 
 **Which PeopleHub fields are there?**
-`employeeCode`, `name`, `email`, `department`, `designation`, `managerEmployeeCode`, `managerEmail`, `location`, `shift`,
-`dateOfJoining`, `active`, `status`, `leavingDate`, `lastModified`.
+`employeeCode`, `name`, `email`, `department`, `designation`, `managerEmployeeCode`, `managerEmail`, `location`, `shift`, `grade`, `level`,
+`dateOfJoining`, `active`, `status`, `leavingDate`.
 
 **How is each incoming field treated?**
 
@@ -106,7 +106,7 @@ which incoming name means which PeopleHub field, so nobody has to change ASP COR
 | **Excel-only column headers** (`ExcelFieldMap`) | Extra lines used **only for Excel uploads**, on top of the field map — HR's sheet headers (`Emp Code`, `Date of Joining`) | none |
 | **Array path** (`ArrayPath`) | Where the list of employees sits in ASP CORE's JSON: `$` = the body is the list; `$.employees` or `$.data.items` when it is wrapped | `$` |
 | **Date formats** (`DateFormats`) | Accepted date formats, tried in order | `yyyy-MM-dd`, `dd/MM/yyyy`, `dd-MM-yyyy`, `dd-MMM-yyyy`, `dd MMM yyyy`, `d/M/yyyy` |
-| **Strict mode** (`Strict`) | Off: only code and name are required; a bad optional value (wrong date) is dropped with a warning. **On:** a required column that is missing or empty for everyone stops the whole import (code, hrmsId on a push, name, email, department, designation, date of joining, shift, status-or-active, manager code-or-email). A blank email, department, designation, date of joining, status-and-active or hrmsId (push only) skips that person, a bad value rejects the row, and unknown fields are listed as a warning. Switch on once the mapping is agreed with IT. | off |
+| **Strict mode** (`Strict`) | Off: only code and name are required; a bad optional value (wrong date) is dropped with a warning. **On:** a required column that is missing or empty for everyone stops the whole import (code, hrmsId on a push, name, email, department, designation, date of joining, shift, grade, level, status-or-active, manager code-or-email). A blank email, department, designation, date of joining, status-and-active or hrmsId (push only) skips that person, a bad value rejects the row, and unknown fields are listed as a warning. Switch on once the mapping is agreed with IT. | off |
 
 ### The field map endpoints
 

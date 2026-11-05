@@ -107,8 +107,7 @@ A JSON array, one object per employee:
 [
   { "employeeCode": "ASP0001", "hrmsId": "1042871", "name": "Priya Raman", "email": "priya.raman@example.com",
     "department": "AR Follow-up", "designation": "Team Lead", "managerEmployeeCode": "ASP0100",
-    "location": "Chennai", "shiftName": "General", "dateOfJoining": "2021-04-12", "active": true, "status": "Confirmed",
-    "lastModified": "2026-10-31T18:20:00+05:30" },
+    "location": "Chennai", "shiftName": "General", "grade": "G5", "level": "L3", "dateOfJoining": "2021-04-12", "active": true, "status": "Confirmed" },
   { "employeeCode": "ASP0045", "hrmsId": "1042872", "name": "Arun Kumar", "active": false, "status": "Resigned", "leavingDate": "2026-10-30" }
 ]
 ```
@@ -161,11 +160,12 @@ or ranges like `10.20.0.0/24`), calls from anywhere else get `403` even with the
 | `status` | `status` and `statusRaw` | Yes | At least one of the two | No |
 | `active` | `active` | Yes | At least one of the two | No |
 | `shiftName` | `shift` | Yes | Yes | Yes |
+| `grade` | `grade` | No, IT must add it | Yes | Yes |
+| `level` | `level` | No, IT must add it | Yes | Yes |
 | `managerEmployeeCode` | `managerEmployeeCode` | No, IT is asked to add it | At least one of the two | Yes |
 | `managerEmail` | `managerEmail` | Yes | At least one of the two | Yes |
 | `location` | `location` | No | No | Yes |
 | `leavingDate` | `leavingDate` | Yes | No | Yes |
-| `lastModified` | `lastModified` | No | No | Yes |
 
 `shiftName` is the only field whose name changes. `status` is stored twice: `status` holds the standard word, such as `NoticePeriod`, and `statusRaw` holds greytHR's exact words, such as `Notice Period`.
 
@@ -176,7 +176,6 @@ None of these are required, and they are stored under the same name ASP CORE sen
 | ASP CORE field | Hub location |
 |---|---|
 | `managerName` | `extra.managerName` |
-| `grade` | `extra.grade` |
 | `gender` | `extra.gender` |
 | `dateOfBirth` | `extra.dateOfBirth` |
 | `phone` | `extra.phone` |
@@ -224,7 +223,6 @@ Other permissions, such as `webhooks:subscribe`, `import:write` and `admin`, are
 | `status` | ASP CORE, as the standard word |
 | `statusRaw` | ASP CORE, as greytHR's exact words |
 | `shift` | ASP CORE's `shiftName` |
-| `lastModified` | ASP CORE |
 | `source` | PeopleHub: where the record came from |
 | `aliases` | PeopleHub: the person's old employee codes |
 
@@ -237,6 +235,8 @@ Other permissions, such as `webhooks:subscribe`, `import:write` and `admin`, are
 | `managerEmployeeCode` | ASP CORE |
 | `managerEmail` | ASP CORE |
 | `location` | ASP CORE |
+| `grade` | ASP CORE |
+| `level` | ASP CORE |
 | `managerResolved` | PeopleHub: whether the manager was found |
 
 **`employees:read:dates`**
@@ -250,7 +250,7 @@ Other permissions, such as `webhooks:subscribe`, `import:write` and `admin`, are
 
 | Field | Comes from |
 |---|---|
-| `extra` | ASP CORE: `managerName`, `grade`, `gender`, `dateOfBirth`, `phone` and any other field not listed above |
+| `extra` | ASP CORE: `managerName`, `gender`, `dateOfBirth`, `phone` and any other field not listed above |
 
 **How the permissions work together**
 
@@ -390,9 +390,6 @@ are also in the **Audit log** with the admin's name.
 **What happens to the apps?**
 They receive the events from a successful run within seconds (webhooks) or at their next poll (`/changes`). A rejected or failed run
 sends nothing.
-
-**Do timestamps without a time zone work?**
-Yes — `lastModified` without an offset is read as India time (`Import:SourceTimeZone`, default `Asia/Kolkata`).
 
 ---
 

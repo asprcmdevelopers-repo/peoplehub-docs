@@ -172,7 +172,7 @@ The rows would have been **imported**, but not completely right:
 
 - `email`, `department`, `designation`, `location`, `status` already match PeopleHub's names → proper fields;
 - `doj` and `manager_id` (unknown names) → kept in `extra`, so *date of joining* stays empty and *nobody has a manager*;
-- `grade` → `extra` (intended); `salary` → dropped (sensitive).
+- `gender` → `extra` (intended); `salary` → dropped (sensitive).
 
 So map every field apps need. Two safety nets: **Field map → Preview** lists every incoming field and what it becomes
 (`doj → (extra)` shows a forgotten mapping), and **Strict mode** (`Import:Strict`, switch on once the mapping is agreed) stops the
@@ -197,13 +197,13 @@ It is imported, stored raw, shown as status **Unknown**, and listed as a warning
 mapped*; map it and replay the last run.
 
 **How do apps read the `extra` data?**
-Only apps whose key has the `employees:read:extra` scope receive it: `"extra": { "Grade": "L2" }` in the API and events,
+Only apps whose key has the `employees:read:extra` scope receive it: `"extra": { "Gender": "Female" }` in the API and events,
 `employee.Extra` in PeopleHub.Client, and the `extra` jsonb column of the app's local copy. Keys are exactly as the source sent them
-— ASP CORE sent `grade`, the Excel sheet `Grade` — so read them case-insensitively. `extra` is not part of the fixed contract: if the
+— ASP CORE sent `gender`, the Excel sheet `Gender` — so read them case-insensitively. `extra` is not part of the fixed contract: if the
 source renames a field, the key changes. If several apps depend on a field, promote it to a fixed PeopleHub field.
 
 **Is a change inside `extra` recorded in history?**
-Yes, including a change of letter case only (`grade` → `Grade`). (Before the fix of 1 Nov 2026 a case-only change was stored but not
+Yes, including a change of letter case only (`gender` → `Gender`). (Before the fix of 1 Nov 2026 a case-only change was stored but not
 written to history; runs from before that, such as #6, do not show it.)
 
 ---
@@ -229,7 +229,7 @@ counts as a change (apps receive an *updated* event for it). Upload the same she
 | ASP0033 broken email | Skipped, person stays active | Run #6 → **Errors** (`invalid_email`); employee page has no run #6 entries |
 | ASP0020 status "Sabbatical" | Imported as Unknown | Run #6 → **Warnings** (`unknown_status`); **Status mappings** → *Seen but not mapped* |
 | *Mobile No* column | Kept in `extra` | Employee page → *Extra fields* |
-| *Grade* column | Kept in `extra` | Employee page → *Extra fields* `{"Grade":"L1"}` |
+| *Gender* column | Kept in `extra` | Employee page → *Extra fields* `{"Gender":"Female"}` |
 
 The test sheets `hr-employees-sample.xlsx` and `hr-employees-broken-half.xlsx` (only 30 people: the safety brake should reject it)
 are in `samples/excel` on the development machine; they match the local demo data only and are not in Git.
@@ -332,7 +332,7 @@ audit log. API: `POST /api/v1/admin/employees/{code}/aliases/{aliasCode}/unlink`
 
 **Are PeopleHub's fields fixed?**
 Yes. The fields an incoming name can be mapped to are fixed: `employeeCode, name, email, department, designation, managerEmployeeCode,
-managerEmail, location, shift, hrmsId, dateOfJoining, active, status, leavingDate, lastModified`. Anything else goes into `extra` (sensitive fields are
+managerEmail, location, shift, grade, level, hrmsId, dateOfJoining, active, status, leavingDate`. Anything else goes into `extra` (sensitive fields are
 dropped).
 
 **Why fixed?**
